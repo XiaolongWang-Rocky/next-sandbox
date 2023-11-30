@@ -12,6 +12,21 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
+const rowData = [
+  {month: 1, value: 54, count: 7},
+  {month: 2, value: 78, count: 12},
+  {month: 3, value: 34, count: 5},
+  {month: 4, value: 223, count: 22},
+  {month: 5, value: 115, count: 17},
+  {month: 6, value: 38, count: 8},
+  {month: 7, value: 87, count: 15},
+  {month: 8, value: 55, count: 6},
+  {month: 9, value: 3, count: 1},
+  {month: 10, value: 332, count: 45},
+  {month: 11, value: 164, count: 26},
+  {month: 12, value: 11, count: 3}
+]
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,44 +38,100 @@ ChartJS.register(
 );
 
 export const options = {
-  responsive: true,
   plugins: {
     legend: {
-      position: 'none'
-    },
-    title: {
       display: false
     },
   },
   scales: {
+    x: {
+      type: 'linear',
+      position: 'bottom',
+      title: {
+        display: false,
+        // text: 'Month',
+      },
+      min: 1,
+      max: 12,
+      ticks: {
+        stepSize: 5,
+        callback: value => value % 5 === 0 ? value : '',
+      }
+    },
     y: {
-        display: false
-    }
-  }
-};
-
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: labels.map((item, index) => Math.floor(Math.random()*10) * index),
-      borderColor: 'white',
-      borderWidth: 6,
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      type: 'linear',
+      position: 'right',
+      title: {
+        display: false,
+        // text: 'Value',
+      },
     },
-    {
-      label: 'Dataset 2',
-      data: labels.map((item, index) => Math.floor(Math.random()*14) * index),
-      borderColor: 'yellow',
-      borderWidth: 1,
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
-  ],
+  },
 };
 
 export default function Page() {
-  return <Line options={options} data={data} />;
+  const months = rowData.map(entry => entry.month)
+  const amounts = rowData.map(entry => entry.value)
+  const values = rowData.map(entry => entry.count)
+
+  const chartData = {
+    labels: months,
+    datasets: [
+      {
+        label: 'Monthly Values',
+        data: amounts,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const chartData2 = {
+    labels: months,
+    datasets: [
+      {
+        label: 'Monthly Counts',
+        data: values,
+        fill: false,
+        borderColor: 'rgb(75, 102, 223)',
+        tension: 0.1,
+      },
+    ],
+  };
+
+  return <div style={{height: '400px'}}>
+    <Line
+    data={chartData}
+    options={{
+      ...options,
+      scales: {
+        x: {
+          type: 'linear',
+          position: 'bottom',
+          title: {
+            display: false,
+            // text: 'Month',
+          },
+          min: 1,
+          max: 12,
+          ticks: {
+            stepSize: 5,
+            callback: value => value % 5 === 0 ? value : '',
+            display: false
+          }
+        },
+        y: {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: false,
+            // text: 'Value',
+          },
+        },
+      }
+    }}
+    />
+    <Line data={chartData2} options={options} />
+  </div>
 }

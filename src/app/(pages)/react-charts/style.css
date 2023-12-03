@@ -1,0 +1,27 @@
+.chart-container {
+    position: relative;
+    flex-direction: column;
+    display: flex;
+  }
+  
+  .chart-wrapper {
+    width: 600px; /* Set the desired width for the chart area */
+    height: 400px; /* Set the desired height */
+  }
+  
+  /* Absolute positioning for the y-axis label */
+  .chart-wrapper .chartjs-size-monitor, .chart-wrapper .chartjs-size-monitor-expand,
+  .chart-wrapper .chartjs-size-monitor-shrink {
+    position: absolute;
+    right: 0;
+  }
+  
+  .chart-wrapper .chartjs-size-monitor, .chart-wrapper .chartjs-size-monitor-expand {
+    top: 0;
+    height: 100%;
+  }
+  
+  .chart-wrapper .chartjs-size-monitor-shrink {
+    top: 50%;
+    transform: translateY(-50%);
+  }

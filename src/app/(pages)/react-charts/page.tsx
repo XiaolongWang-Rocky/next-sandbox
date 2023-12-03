@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,8 +9,9 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+import './style.css'
 
 const rowData = [
   {month: 1, value: 54, count: 7},
@@ -35,9 +36,10 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend
-);
+)
 
 export const options = {
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       display: false
@@ -65,9 +67,13 @@ export const options = {
         display: false,
         // text: 'Value',
       },
+      scaleLabel: {
+        display: true,
+        labelString: 'Label for Y-axis'
+      }
     },
   },
-};
+}
 
 export default function Page() {
   const months = rowData.map(entry => entry.month)
@@ -100,38 +106,42 @@ export default function Page() {
     ],
   };
 
-  return <div style={{height: '400px'}}>
-    <Line
-    data={chartData}
-    options={{
-      ...options,
-      scales: {
-        x: {
-          type: 'linear',
-          position: 'bottom',
-          title: {
-            display: false,
-            // text: 'Month',
-          },
-          min: 1,
-          max: 12,
-          ticks: {
-            stepSize: 5,
-            callback: value => value % 5 === 0 ? value : '',
-            display: false
+  return <div className='chart-container'>
+      <div style={{height: '100px', width: '800px', paddingRight: '50px'}} className='chart-wrapper'>
+        <Line
+        data={chartData}
+        options={{
+          ...options,
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              title: {
+                display: false,
+                // text: 'Month',
+              },
+              min: 1,
+              max: 12,
+              ticks: {
+                stepSize: 5,
+                callback: value => value % 5 === 0 ? value : '',
+                display: false
+              }
+            },
+            y: {
+              type: 'linear',
+              position: 'right',
+              title: {
+                display: false,
+                // text: 'Value',
+              },
+            },
           }
-        },
-        y: {
-          type: 'linear',
-          position: 'right',
-          title: {
-            display: false,
-            // text: 'Value',
-          },
-        },
-      }
-    }}
-    />
-    <Line data={chartData2} options={options} />
-  </div>
+        }}
+        />
+      </div>
+      <div style={{height: '100px', width: '800px', paddingRight: '50px'}} className='chart-wrapper'>
+        <Line data={chartData2} options={options} />
+      </div>
+    </div>
 }

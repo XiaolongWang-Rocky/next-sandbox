@@ -1,74 +1,144 @@
 'use client'
-import React from 'react'
-import {EditorState, Modifier, RichUtils} from 'draft-js'
+import React, { useRef, useState } from 'react'
+import {EditorState, Modifier, RichUtils, CompositeDecorator} from 'draft-js'
 import dynamic from 'next/dynamic'
 import 'draft-js/dist/Draft.css'
-import { Box, Button } from '@mui/material';
 
 const Editor = dynamic(() => import('draft-js').then((mod) => mod.Editor), {
     ssr: false,
 })
 
 export default function Page() {
-    const [editorState, setEditorState] = React.useState(
-    () => EditorState.createEmpty()
+    // constructor() {
+    //     super();
+    //     const compositeDecorator = new CompositeDecorator([
+    //         {
+    //         strategy: handleStrategy,
+    //         component: HandleSpan,
+    //         },
+    //         {
+    //         strategy: hashtagStrategy,
+    //         component: HashtagSpan,
+    //         },
+    //     ]);
+
+    //     this.state = {
+    //         editorState: EditorState.createEmpty(compositeDecorator),
+    //     };
+
+    //     this.focus = () => this.refs.editor.focus();
+    //     this.onChange = (editorState) => this.setState({editorState});
+    //     this.logState = () => console.log(this.state.editorState.toJS());
+    // }
+    const compositeDecorator = new CompositeDecorator([
+        {
+            strategy: handleStrategy,
+            component: HandleSpan,
+        },
+        {
+            strategy: hashtagStrategy,
+            component: HashtagSpan,
+        },
+    ]);
+    const [editorState, setEditorState] = useState(EditorState.createEmpty(compositeDecorator))
+    const editor = useRef(null)
+    const focus = () => editor.current?.focus()
+    const onChange = (editorState) => setEditorState(editorState)
+    const logState = () => console.log(editorState.toJS())
+
+    const HANDLE_REGEX = /@[\w]+/g;
+    const HASHTAG_REGEX = /#[\w\u0590-\u05ff]+/g;
+
+    function handleStrategy(contentBlock, callback, contentState) {
+        findWithRegex(HANDLE_REGEX, contentBlock, callback);
+    }
+
+    function hashtagStrategy(contentBlock, callback, contentState) {
+        findWithRegex(HASHTAG_REGEX, contentBlock, callback);
+    }
+
+    function findWithRegex(regex, contentBlock, callback) {
+        const text = contentBlock.getText();
+        let matchArr, start;
+        while ((matchArr = regex.exec(text)) !== null) {
+            start = matchArr.index;
+            callback(start, start + matchArr[0].length);
+        }
+    }
+
+    // render() {
+    return (
+        <div style={styles.root}>
+        <div style={styles.editor} onClick={focus}>
+            <Editor
+            editorState={editorState}
+            onChange={onChange}
+            placeholder="Write a tweet..."
+            ref={editor}
+            spellCheck={true}
+            />
+        </div>
+        <input
+            onClick={logState}
+            style={styles.button}
+            type="button"
+            value="Log State"
+        />
+        </div>
     );
-
-    // const contentState = editorState.getCurrentContent()
-    // const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', {
-    //     url: 'http://www.zombo.com'
-    // })
-    // const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
-    // const contentStateWithLink = Modifier.applyEntity(
-    //     contentStateWithEntity,
-    //     selectionState,
-    //     entityKey
-    // )
-    // const newEditorState = EditorState.set(editorState, {
-    //     currentContent: contentStateWithLink,
-    // })
-
-    function handleKeyCommand(command, editorState) {
-        console.log(command)
-        const newState = RichUtils.handleKeyCommand(editorState, command)
-        if(newState) {
-            setEditorState(newState)
-            return 'handled'
-        }
-        return 'not-handled'
-    }
-
-    function handleClick() {
-        console.log(editorState)
-        const contentState = editorState.getCurrentContent()
-        console.log(contentState)
-        const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', {
-            url: 'http://www.zombo.com'
-        })
-        console.log(contentStateWithEntity)
-        const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
-        console.log(entityKey)
-        const selection = editorState.getSelection()
-        console.log(selection)
-        console.log(selection.getStartKey())
-        console.log(selection.getEndOffset())
-    }
-
-    return <Box
-    sx={{
-        textAlign: 'center',
-        '&>div': {
-            border: '1px solid black',
-            backgroundColor: '#f0f0f0',
-            margin: '200px auto',
-            padding: '5px 10px',
-            height: '300px',
-            width: '500px',
-            overflow: 'auto'
-        }
-    }}
-    >
-        <Editor editorState={editorState} onChange={setEditorState} handleKeyCommand={handleKeyCommand}/>
-        <Button onClick={handleClick}>Show Content</Button>
-    </Box>
+    // }
 }
+
+/**
+ * Super simple decorators for handles and hashtags, for demonstration
+ * purposes only. Don't reuse these regexes.
+ */
+
+const HandleSpan = (props) => {
+    return (
+        <span
+        style={styles.handle}
+        data-offset-key={props.offsetKey}
+        >
+            {props.children}
+        </span>
+    );
+};
+
+const HashtagSpan = (props) => {
+    return (
+        <span
+        style={styles.hashtag}
+        data-offset-key={props.offsetKey}
+        >
+            {props.children}
+        </span>
+    );
+};
+
+const styles = {
+    root: {
+        fontFamily: '\'Helvetica\', sans-serif',
+        padding: 20,
+        width: 600,
+    },
+    editor: {
+        border: '1px solid #ddd',
+        cursor: 'text',
+        fontSize: 16,
+        minHeight: 40,
+        padding: 10,
+    },
+    button: {
+        marginTop: 10,
+        textAlign: 'center',
+    },
+    handle: {
+        color: 'rgba(98, 177, 254, 1.0)',
+        direction: 'ltr',
+        unicodeBidi: 'bidi-override',
+    },
+    hashtag: {
+        color: 'rgba(95, 184, 138, 1.0)',
+    },
+};

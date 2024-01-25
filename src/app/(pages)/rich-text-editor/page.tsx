@@ -9,27 +9,6 @@ const Editor = dynamic(() => import('draft-js').then((mod) => mod.Editor), {
 })
 
 export default function Page() {
-    // constructor() {
-    //     super();
-    //     const compositeDecorator = new CompositeDecorator([
-    //         {
-    //         strategy: handleStrategy,
-    //         component: HandleSpan,
-    //         },
-    //         {
-    //         strategy: hashtagStrategy,
-    //         component: HashtagSpan,
-    //         },
-    //     ]);
-
-    //     this.state = {
-    //         editorState: EditorState.createEmpty(compositeDecorator),
-    //     };
-
-    //     this.focus = () => this.refs.editor.focus();
-    //     this.onChange = (editorState) => this.setState({editorState});
-    //     this.logState = () => console.log(this.state.editorState.toJS());
-    // }
     const compositeDecorator = new CompositeDecorator([
         {
             strategy: handleStrategy,
@@ -41,10 +20,11 @@ export default function Page() {
         },
     ]);
     const [editorState, setEditorState] = useState(EditorState.createEmpty(compositeDecorator))
+    const [displayedText, setDisplayedText] = useState('')
     const editor = useRef(null)
     const focus = () => editor.current?.focus()
     const onChange = (editorState) => setEditorState(editorState)
-    const logState = () => console.log(editorState.toJS())
+    const logState = () => setDisplayedText(editorState.getCurrentContent().getPlainText())
 
     const HANDLE_REGEX = /@[\w]+/g;
     const HASHTAG_REGEX = /#[\w\u0590-\u05ff]+/g;
@@ -66,24 +46,43 @@ export default function Page() {
         }
     }
 
+    function addLink() {
+        const contentState = editorState.getCurrentContent()
+        const selectionState = editorState.getSelection()
+        const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', {url: 'http://www.facebook.com'})
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+        const contentStateWithLink = Modifier.applyEntity(contentStateWithEntity, selectionState, entityKey)
+        const newEditorState = EditorState.set(editorState, {
+            currentContent: contentStateWithLink
+        })
+        setEditorState(newEditorState)
+    }
+
     // render() {
     return (
         <div style={styles.root}>
-        <div style={styles.editor} onClick={focus}>
-            <Editor
-            editorState={editorState}
-            onChange={onChange}
-            placeholder="Write a tweet..."
-            ref={editor}
-            spellCheck={true}
+            <div style={styles.editor} onClick={focus}>
+                <Editor
+                editorState={editorState}
+                onChange={onChange}
+                placeholder="Write a tweet..."
+                ref={editor}
+                spellCheck={true}
+                />
+            </div>
+            <input
+                onClick={logState}
+                style={styles.button}
+                type="button"
+                value="Log State"
             />
-        </div>
-        <input
-            onClick={logState}
-            style={styles.button}
-            type="button"
-            value="Log State"
-        />
+            <input
+                onClick={addLink}
+                style={styles.button}
+                type="button"
+                value="Add the link"
+            />
+            <p style={{backgroundColor: 'pink'}} dangerouslySetInnerHTML={{__html: displayedText?.replace(/\n/g, '<br>')}}></p>
         </div>
     );
     // }
@@ -130,8 +129,11 @@ const styles = {
         padding: 10,
     },
     button: {
-        marginTop: 10,
+        margin: 10,
+        padding: 5,
+        borderRadius: 3,
         textAlign: 'center',
+        backgroundColor: 'yellow'
     },
     handle: {
         color: 'rgba(98, 177, 254, 1.0)',

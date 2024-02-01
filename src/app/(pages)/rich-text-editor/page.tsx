@@ -1,6 +1,6 @@
 'use client'
 import React, { useRef, useState } from 'react'
-import {EditorState, Modifier, CompositeDecorator, ContentBlock} from 'draft-js'
+import {EditorState, Modifier, CompositeDecorator, ContentBlock } from 'draft-js'
 import dynamic from 'next/dynamic'
 import 'draft-js/dist/Draft.css'
 import { List, ListItem } from '@mui/material'
@@ -112,7 +112,7 @@ export default function Page() {
         const currentContent = editorState.getCurrentContent()
         const focusKey = selectionState.getFocusKey()
         const focusOffset = selectionState.getFocusOffset()
-        const targetText = matchedTexts.current.find(item => item.blockKey === focusKey && focusOffset >= item.start+1 && focusOffset <= item.end)
+        const targetText = matchedTexts.current.find(textItem => textItem.blockKey === focusKey && focusOffset >= textItem.start+1 && focusOffset <= textItem.end)
         const currentBlock = currentContent.getBlockForKey(targetText.blockKey)
         if(currentBlock && targetText) {
             const newContentState = Modifier.replaceText(
@@ -194,11 +194,12 @@ const styles = {
         width: '30vw',
     },
     editor: {
+        color: 'blue',
         border: '1px solid #ddd',
         position: 'relative',
         cursor: 'text',
         fontSize: 16,
-        minHeight: 40,
+        minHeight: 400,
         padding: 10,
     },
     button: {

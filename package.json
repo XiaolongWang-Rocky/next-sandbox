@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "dotenv -e .env.dev -- next dev",
+    "staging": "dotenv -e .env.staging -- next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -20,21 +21,26 @@
     "bootstrap": "^5.3.2",
     "chart.js": "^4.4.0",
     "chartjs-plugin-annotation": "^3.0.1",
+    "country-state-city": "^3.2.1",
     "date-fns": "^2.30.0",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
     "draft-js": "^0.11.7",
     "moment": "^2.29.4",
-    "next": "13.4.12",
+    "next": "14.2.3",
     "react": "^18",
     "react-bootstrap": "^2.9.1",
     "react-chartjs-2": "^5.2.0",
     "react-date-range": "^1.4.0",
     "react-dom": "^18",
+    "react-easy-infinite-scroll-hook": "^2.1.4",
     "react-hook-form": "^7.48.2",
     "react-redux": "^9.1.0",
     "react-scroll": "^1.9.0",
     "recharts": "^2.10.3",
     "redux-persist": "^6.0.0",
-    "swiper": "^11.0.5"
+    "swiper": "^11.0.5",
+    "video.js": "^8.12.0"
   },
   "devDependencies": {
     "@types/node": "^20",

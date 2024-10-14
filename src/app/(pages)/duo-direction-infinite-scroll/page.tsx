@@ -1,5 +1,5 @@
 'use client'
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import useInfiniteScroll, { ScrollDirection } from 'react-easy-infinite-scroll-hook'
 
@@ -8,12 +8,12 @@ export default function Page() {
     const [loadingPrev, setLoadingPrev] = useState(false)
     const [loadingNext, setLoadingNext] = useState(false)
     const [initialized, setInitialized] = useState(false)
-    const [hasMore, setHasMore] = useState({
-        up: true,
-        down: true
-    })
+    // const [hasMore, setHasMore] = useState({
+    //     up: true,
+    //     down: true
+    // })
 
-    const loadMore = async (direction: ScrollDirection) => {
+    const loadMore = async (direction: string) => {
         if (!initialized) return
         console.log(direction)
         if (direction === 'down') {
@@ -45,32 +45,42 @@ export default function Page() {
         }
     }
 
-    useInfiniteScroll<HTMLDivElement>({
-        next: loadMore,
-        rowCount: dataList.length,
-        hasMore,
-        windowScroll: true,
-        scrollThreshold: '5px'
-    });
+    // useInfiniteScroll<HTMLDivElement>({
+    //     next: loadMore,
+    //     rowCount: dataList.length,
+    //     hasMore,
+    //     windowScroll: true,
+    //     scrollThreshold: '5px'
+    // });
 
     useEffect(() => {
-        console.log(dataList)
         setTimeout(() => {
-            const nextData = []
-            for (let i = 1; i < 6; i++) {
-                nextData.push(dataList[dataList.length - 1] + i)
-            }
-            setDataList(prevState => [...prevState, ...nextData])
-        }, 1000)
-        setTimeout(() => {
-            const prevData = []
-            for (let i = 1; i < 6; i++) {
-                prevData.unshift(dataList[0] - i)
-            }
-            setDataList(prevState => [...prevData, ...prevState])
+            setDataList([95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105])
             setInitialized(true)
-        }, 2000)
+        }, 1500)
     }, [])
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollBottom = window.innerHeight + scrollTop;
+
+            // 顶部加载更多
+            if (scrollTop === 0) {
+                loadMore('up');
+            }
+
+            // 底部加载更多
+            if (scrollBottom >= document.documentElement.scrollHeight) {
+                loadMore('down');
+            }
+        }
+
+        if (initialized) {
+            window.addEventListener('scroll', handleScroll)
+        }
+        return window.removeEventListener('scroll', handleScroll)
+    }, [dataList])
 
     return <Box
         sx={{

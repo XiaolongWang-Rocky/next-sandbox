@@ -1,12 +1,13 @@
 'use client'
-import { Box, Button, Zoom, Typography, Collapse } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { Box, Button, Typography, Collapse } from "@mui/material";
+import { useMemo, useState } from "react";
 import { TransitionGroup } from 'react-transition-group';
+import useWindowSize from "@/app/hooks/useWindowSize";
 
 export default function Page() {
     const storyList = [1, 2, 3, 4, 5, 6, 7]
     const [selectedStory, setSelectedStory] = useState(4)
-    const [slideDirection, setSlideDirection] = useState()
+    const { wInnerWidth, wInnerHeight } = useWindowSize()
     const displayStories = useMemo(() => {
         const i = storyList.findIndex(item => item === selectedStory)
         const start = i - 2 < 0 ? 0 : i - 2
@@ -35,24 +36,29 @@ export default function Page() {
     }, [selectedStory])
 
     const goPrev = () => {
-        // setSelectedStory(prevState => prevState - 1)
-        setSlideDirection('left')
+        setSelectedStory(prevState => prevState - 1)
     }
 
     const goNext = () => {
-        // setSelectedStory(prevState => prevState + 1)
-        setSlideDirection('right')
+        setSelectedStory(prevState => prevState + 1)
     }
-
-    useEffect(() => {
-        if (slideDirection === 'left') {
-            setSelectedStory(prevState => prevState - 1)
-            setSlideDirection(undefined)
-        } else if (slideDirection === 'right') {
-            setSelectedStory(prevState => prevState + 1)
-            setSlideDirection(undefined)
+    const centerStoryDimension = useMemo(() => {
+        let tempWidth = 0.3675 * (wInnerWidth - 320)
+        let mediaWidth = tempWidth * 0.7653
+        let mediaHeight = mediaWidth * 16 / 9
+        let tempHeight = mediaHeight + 40
+        if (tempHeight > wInnerHeight * 0.95) {
+            tempHeight = wInnerHeight * 0.95
+            mediaHeight = tempHeight - 40
+            mediaWidth = mediaHeight * 9 / 16
+            tempWidth = mediaWidth / 0.7653
         }
-    }, [slideDirection])
+        return {
+            width: tempWidth,
+            height: tempHeight
+        }
+    }, [wInnerWidth, wInnerHeight])
+
 
     return <Box
         sx={{
@@ -70,7 +76,7 @@ export default function Page() {
                 overflow: 'hidden',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '100px'
+                gap: '80px'
             }}
         >
             <TransitionGroup component={null}>
@@ -79,27 +85,26 @@ export default function Page() {
                         {
                             item > 0 ? <Box
                                 sx={{
-                                    width: selectedStory === item ? '30.6vw' : '10.2vw',
-                                    aspectRatio: selectedStory === item ? '0.735' : '9/16',
+                                    width: selectedStory === item ? centerStoryDimension.width : centerStoryDimension.width * 0.34013,
                                     flexShrink: 0,
                                     display: 'flex',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
-                                    overflow: 'hidden'
                                 }}
                             >
                                 {selectedStory === item && <Button disabled={!hasPrev} onClick={goPrev} sx={{ minWidth: 'unset' }}>P</Button>}
                                 <Box
                                     sx={{
-                                        width: selectedStory === item ? '73.5%' : '100%',
+                                        width: selectedStory === item ? '76.53%' : '100%',
+                                        borderRadius: '4px',
+                                        overflow: 'hidden'
                                     }}
                                 >
                                     <Typography
                                         sx={{
-                                            width: selectedStory === item ? '73.5%' : '100%',
-                                            height: '100%',
+                                            width: '100%',
+                                            aspectRatio: '9/16',
                                             backgroundColor: 'gray',
-                                            borderRadius: '4px',
                                             fontSize: '4rem',
                                             fontWeight: 700,
                                             display: 'flex',
@@ -107,6 +112,7 @@ export default function Page() {
                                             alignItems: 'center'
                                         }}
                                     >{item}</Typography>
+                                    {selectedStory === item && <Box sx={{ backgroundColor: 'pink', width: '100%', height: '40px' }}>Comment Area</Box>}
                                 </Box>
                                 {selectedStory === item && <Button disabled={!hasNext} onClick={goNext} sx={{ minWidth: 'unset' }}>N</Button>}
                             </Box> : <Box
@@ -119,72 +125,6 @@ export default function Page() {
                         }
                     </Collapse>
                     )
-
-                    // displayStories.map((item) => {
-                    //     if (selectedStory === item) {
-                    //         return <Zoom key={item} >
-                    //             <Box
-                    //                 sx={{
-                    //                     width: '30vw',
-                    //                     aspectRatio: '0.735',
-                    //                     border: '1px solid pink',
-                    //                     borderRadius: '6px',
-                    //                     backgroundColor: '#11ffcd',
-                    //                     flexShrink: 0,
-                    //                     display: 'flex',
-                    //                     justifyContent: 'space-between',
-                    //                     alignItems: 'center',
-                    //                 }}
-                    //             >
-                    //                 <Button disabled={!hasPrev} onClick={goPrev} sx={{ minWidth: 'unset' }}>P</Button>
-                    //                 <Typography
-                    //                     sx={{
-                    //                         width: '73.5%',
-                    //                         height: '100%',
-                    //                         backgroundColor: 'gray',
-                    //                         fontSize: '4rem',
-                    //                         fontWeight: 700,
-                    //                         display: 'flex',
-                    //                         justifyContent: 'center',
-                    //                         alignItems: 'center'
-                    //                     }}
-                    //                 >{item}</Typography>
-                    //                 <Button disabled={!hasNext} onClick={goNext} sx={{ minWidth: 'unset' }}>N</Button>
-                    //             </Box>
-                    //         </Zoom>
-                    //     } else {
-                    //         return <Collapse key={item} orientation="horizontal">
-                    //             {
-                    //                 item > 0 ? <Box
-                    //                     sx={{
-                    //                         width: '200px',
-                    //                         aspectRatio: '9/16',
-                    //                         border: '1px solid black',
-                    //                         borderRadius: '6px',
-                    //                         backgroundColor: 'gray',
-                    //                         flexShrink: 0,
-                    //                         display: 'flex',
-                    //                         justifyContent: 'center',
-                    //                         alignItems: 'center',
-                    //                     }}
-                    //                 >
-                    //                     <Typography
-                    //                         sx={{
-                    //                             fontSize: '4rem',
-                    //                             fontWeight: 700
-                    //                         }}
-                    //                     >{item}</Typography>
-                    //                 </Box> : <Box
-                    //                     sx={{
-                    //                         width: '200px',
-                    //                         aspectRatio: '1/1',
-                    //                         flexShrink: 0,
-                    //                     }}
-                    //                 ></Box>
-                    //             }
-                    //         </Collapse>
-                    //     }
-                    // })
                 }
             </TransitionGroup>
         </Box>
